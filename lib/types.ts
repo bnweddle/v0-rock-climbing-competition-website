@@ -77,7 +77,7 @@ export interface ParticipantClimb {
   pointsEarned: number
   completedAt: string
   // Speed category fields
-  speedTime?: string // format: MM:SS:mmm
+  speedTime?: string // format: MM:SS:mm
   // Wall/Route checkpoint fields
   checkpointReached?: CheckpointProgress
   completionCount?: number // how many times completed in session

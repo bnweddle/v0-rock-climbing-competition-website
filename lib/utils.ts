@@ -61,11 +61,11 @@ export function calculateCheckpointPoints(
 
 // Format speed time for display
 export function formatSpeedTime(time: string): string {
-  return time // Already in MM:SS:mmm format
+  return time // Already in MM:SS:mm format
 }
 
 // Validate speed time format
 export function validateSpeedTime(time: string): boolean {
-  const regex = /^(\d{1,2}):([0-5]\d):(\d{3})$/
+  const regex = /^(\d{1,2}):([0-5]\d):(\d{2})$/
   return regex.test(time)
 }

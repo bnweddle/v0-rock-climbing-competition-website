@@ -57,7 +57,7 @@ export function ScoreEntry() {
       if (!validateSpeedTime(formData.speedTime)) {
         toast({
           title: "Invalid Time Format",
-          description: "Please use format MM:SS:mmm (e.g., 01:23:456)",
+          description: "Please use format MM:SS:mm (e.g., 01:23:45)",
           variant: "destructive",
         })
         return
@@ -308,17 +308,17 @@ export function ScoreEntry() {
 
               {selectedCategory?.name === "Speed" && (
                 <div className="space-y-2">
-                  <Label htmlFor="speedTime">Time (MM:SS:mmm)</Label>
+                  <Label htmlFor="speedTime">Time (MM:SS:mm)</Label>
                   <Input
                     id="speedTime"
                     type="text"
                     value={formData.speedTime}
                     onChange={(e) => setFormData({ ...formData, speedTime: e.target.value })}
-                    placeholder="01:23:456"
-                    pattern="\d{1,2}:[0-5]\d:\d{3}"
+                    placeholder="01:23:45"
+                    pattern="\d{1,2}:[0-5]\d:\d{2}"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Format: Minutes:Seconds:Milliseconds (e.g., 01:23:456)
+                    Format: Minutes:Seconds:Centiseconds (e.g., 01:23:45)
                   </p>
                 </div>
               )}
