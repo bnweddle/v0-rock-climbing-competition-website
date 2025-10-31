@@ -4,6 +4,7 @@ import { useCompetitionStore } from "@/lib/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Star, Award } from "lucide-react"
+import { getDifficultyColor } from "@/lib/utils"
 
 export function RulesSection() {
   const { ageTiers, categories, routes, wallTops, bonuses } = useCompetitionStore()
@@ -66,8 +67,13 @@ export function RulesSection() {
             <CardContent>
               <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 md:grid-cols-9">
                 {wallTops.map((wall) => (
-                  <div key={wall.id} className="flex flex-col items-center rounded-lg border border-border p-3">
+                  <div key={wall.id} className="flex flex-col items-center gap-2 rounded-lg border border-border p-3">
                     <span className="text-lg font-bold text-primary">Wall {wall.wallNumber}</span>
+                    {wall.difficulty && (
+                      <Badge className={getDifficultyColor(wall.difficulty)}>
+                        {wall.difficulty}
+                      </Badge>
+                    )}
                     <span className="text-sm text-muted-foreground">{wall.points} pts</span>
                   </div>
                 ))}
@@ -85,9 +91,9 @@ export function RulesSection() {
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {routes.map((route) => (
                   <div key={route.id} className="flex items-center justify-between rounded-lg border border-border p-3">
-                    <div>
+                    <div className="flex items-center gap-2">
                       <span className="font-semibold text-foreground">{route.name}</span>
-                      <Badge variant="outline" className="ml-2">
+                      <Badge className={getDifficultyColor(route.difficulty)}>
                         {route.difficulty}
                       </Badge>
                     </div>

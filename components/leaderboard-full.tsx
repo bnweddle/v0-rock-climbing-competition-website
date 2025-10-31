@@ -227,6 +227,7 @@ export function LeaderboardFull() {
                                     const route = routes.find((r) => r.id === climb.routeId)
                                     const wall = wallTops.find((w) => w.id === climb.wallTopId)
                                     const category = climb.categoryId === 3 ? "Speed" : null
+                                    const isSpeedClimb = !route && !wall && category === "Speed"
 
                                     return (
                                       <div
@@ -234,6 +235,17 @@ export function LeaderboardFull() {
                                         className="flex items-center justify-between rounded-lg border border-border p-3"
                                       >
                                         <div className="flex-1">
+                                          {isSpeedClimb && climb.speedTime && (
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              <Badge variant="default" className="bg-blue-500 hover:bg-blue-600">
+                                                Speed Challenge
+                                              </Badge>
+                                              <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-accent/50">
+                                                <Clock className="h-4 w-4 text-primary" />
+                                                <span className="text-sm font-bold text-foreground">{climb.speedTime}</span>
+                                              </div>
+                                            </div>
+                                          )}
                                           {route && (
                                             <div className="flex items-center gap-2 flex-wrap">
                                               <span className="text-sm font-medium text-foreground">{route.name}</span>
@@ -276,12 +288,6 @@ export function LeaderboardFull() {
                                                   ×{climb.completionCount}
                                                 </Badge>
                                               )}
-                                            </div>
-                                          )}
-                                          {category === "Speed" && climb.speedTime && (
-                                            <div className="flex items-center gap-2">
-                                              <Clock className="h-4 w-4 text-muted-foreground" />
-                                              <span className="text-sm font-medium text-foreground">{climb.speedTime}</span>
                                             </div>
                                           )}
                                           <p className="text-xs text-muted-foreground mt-1">
