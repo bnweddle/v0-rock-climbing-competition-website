@@ -96,3 +96,9 @@ export interface CostumeVote {
   voterEmail: string
   votedAt: string
 }
+
+export interface SpeedLeaderboardEntry {
+  participant: Participant
+  bestTime: string
+  attemptCount: number
+}

@@ -12,6 +12,7 @@ import type {
   ParticipantClimb,
   ParticipantBonus,
   CostumeVote,
+  SpeedLeaderboardEntry,
 } from "./types"
 
 interface CompetitionStore {
@@ -60,6 +61,7 @@ interface CompetitionStore {
   // Computed
   getParticipantWithDetails: (id: number) => Participant | undefined
   getLeaderboard: () => Participant[]
+  getSpeedLeaderboard: () => SpeedLeaderboardEntry[]
 }
 
 let nextId = 1000
@@ -320,6 +322,57 @@ export const useCompetitionStore = create<CompetitionStore>()(
         return state.participants
           .map((p) => state.getParticipantWithDetails(p.id)!)
           .sort((a, b) => b.totalScore - a.totalScore)
+      },
+
+      getSpeedLeaderboard: () => {
+        const state = get()
+        const speedCategoryId = state.categories.find((c) => c.name === "Speed")?.id
+        
+        if (!speedCategoryId) return []
+
+        // Get all speed climbs grouped by participant
+        const participantSpeedData = new Map<number, { times: string[], participant: Participant }>()
+
+        state.participantClimbs
+          .filter((climb) => climb.categoryId === speedCategoryId && climb.speedTime)
+          .forEach((climb) => {
+            const participant = state.getParticipantWithDetails(climb.participantId)
+            if (!participant) return
+
+            if (!participantSpeedData.has(climb.participantId)) {
+              participantSpeedData.set(climb.participantId, { times: [], participant })
+            }
+            participantSpeedData.get(climb.participantId)!.times.push(climb.speedTime!)
+          })
+
+        // Convert to leaderboard entries with best time
+        const entries: SpeedLeaderboardEntry[] = Array.from(participantSpeedData.values()).map(
+          ({ times, participant }) => {
+            // Sort times to find the fastest (convert to comparable format)
+            const sortedTimes = times.sort((a, b) => {
+              const timeToMs = (time: string) => {
+                const [min, sec, cs] = time.split(':').map(Number)
+                return min * 60000 + sec * 1000 + cs * 10
+              }
+              return timeToMs(a) - timeToMs(b)
+            })
+
+            return {
+              participant,
+              bestTime: sortedTimes[0],
+              attemptCount: times.length,
+            }
+          }
+        )
+
+        // Sort by best time (fastest first)
+        return entries.sort((a, b) => {
+          const timeToMs = (time: string) => {
+            const [min, sec, cs] = time.split(':').map(Number)
+            return min * 60000 + sec * 1000 + cs * 10
+          }
+          return timeToMs(a.bestTime) - timeToMs(b.bestTime)
+        })
       },
     }),
     {

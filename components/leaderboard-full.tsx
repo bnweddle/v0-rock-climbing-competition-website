@@ -18,18 +18,22 @@ import {
 } from "@/components/ui/dialog"
 
 export function LeaderboardFull() {
-  const { getLeaderboard, ageTiers, routes, wallTops, participantClimbs, bonuses } = useCompetitionStore()
+  const { getLeaderboard, getSpeedLeaderboard, ageTiers, routes, wallTops, participantClimbs, bonuses } = useCompetitionStore()
   const [filterGender, setFilterGender] = useState<string>("all")
   const [filterAgeTier, setFilterAgeTier] = useState<string>("all")
+  const [activeTab, setActiveTab] = useState<"overall" | "speed">("overall")
 
   let leaderboard = getLeaderboard()
+  let speedLeaderboard = getSpeedLeaderboard()
 
-  // Apply filters
+  // Apply filters to overall leaderboard
   if (filterGender !== "all") {
     leaderboard = leaderboard.filter((p) => p.gender === filterGender)
+    speedLeaderboard = speedLeaderboard.filter((entry) => entry.participant.gender === filterGender)
   }
   if (filterAgeTier !== "all") {
     leaderboard = leaderboard.filter((p) => p.ageTierId === Number.parseInt(filterAgeTier))
+    speedLeaderboard = speedLeaderboard.filter((entry) => entry.participant.ageTierId === Number.parseInt(filterAgeTier))
   }
 
   const getParticipantClimbs = (participantId: number) => {
@@ -49,6 +53,27 @@ export function LeaderboardFull() {
         <div className="text-center mb-8">
           <h1 className="font-display text-5xl font-bold text-primary mb-4">Leaderboard</h1>
           <p className="text-muted-foreground text-lg">See how climbers rank in the Rocktober Challenge</p>
+        </div>
+
+        {/* Tab Selector */}
+        <div className="mb-8 flex gap-3 justify-center">
+          <Button
+            variant={activeTab === "overall" ? "default" : "outline"}
+            size="lg"
+            onClick={() => setActiveTab("overall")}
+          >
+            <Trophy className="h-5 w-5 mr-2" />
+            Overall Points
+          </Button>
+          <Button
+            variant={activeTab === "speed" ? "default" : "outline"}
+            size="lg"
+            className={activeTab === "speed" ? "bg-blue-500 hover:bg-blue-600" : ""}
+            onClick={() => setActiveTab("speed")}
+          >
+            <Clock className="h-5 w-5 mr-2" />
+            Speed Challenge
+          </Button>
         </div>
 
         {/* Filters */}
@@ -108,23 +133,24 @@ export function LeaderboardFull() {
           </CardContent>
         </Card>
 
-        {/* Leaderboard */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-foreground">Rankings</CardTitle>
-            <CardDescription>
-              {leaderboard.length} {leaderboard.length === 1 ? "climber" : "climbers"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {leaderboard.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">No participants match your filters</p>
-              </div>
-            )}
+        {/* Overall Points Leaderboard */}
+        {activeTab === "overall" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-foreground">Overall Points Rankings</CardTitle>
+              <CardDescription>
+                {leaderboard.length} {leaderboard.length === 1 ? "climber" : "climbers"} ranked by total points
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {leaderboard.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No participants match your filters</p>
+                </div>
+              )}
 
-            <div className="space-y-3">
-              {leaderboard.map((participant, index) => {
+              <div className="space-y-3">
+                {leaderboard.map((participant, index) => {
                 const tier = ageTiers.find((t) => t.id === participant.ageTierId)
                 const climbs = getParticipantClimbs(participant.id)
 
@@ -311,6 +337,79 @@ export function LeaderboardFull() {
             </div>
           </CardContent>
         </Card>
+        )}
+
+        {/* Speed Challenge Leaderboard */}
+        {activeTab === "speed" && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-foreground">
+                <Clock className="h-6 w-6 text-blue-500" />
+                Speed Challenge Rankings
+              </CardTitle>
+              <CardDescription>
+                {speedLeaderboard.length} {speedLeaderboard.length === 1 ? "climber" : "climbers"} ranked by fastest time
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {speedLeaderboard.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No speed climbs recorded yet</p>
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {speedLeaderboard.map((entry, index) => {
+                  const tier = ageTiers.find((t) => t.id === entry.participant.ageTierId)
+
+                  return (
+                    <div
+                      key={entry.participant.id}
+                      className="flex items-center gap-4 rounded-lg border border-border p-4 hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-blue-500/10">
+                        {getRankIcon(index)}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-semibold text-foreground">{entry.participant.name}</h3>
+                          {tier && (
+                            <Badge variant="outline" className="text-xs">
+                              {tier.name}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="secondary" className="text-xs">
+                            {entry.participant.gender}
+                          </Badge>
+                          {entry.participant.bonuses && entry.participant.bonuses.length > 0 && (
+                            <div className="flex items-center gap-0.5">
+                              {entry.participant.bonuses.map((_, i) => (
+                                <Star key={i} className="h-3 w-3 fill-accent text-accent" />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                          <Clock className="h-5 w-5 text-blue-500" />
+                          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{entry.bestTime}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {entry.attemptCount} {entry.attemptCount === 1 ? "attempt" : "attempts"}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )
