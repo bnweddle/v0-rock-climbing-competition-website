@@ -48,3 +48,4 @@ Continue building your app on:
 10. Gravity Gladiator - Climb all 5.10c's
 11. Top-out Titan - Climb all 5.11a's
 12. Drop Dead - Longest recorded dead hang
+13. Wall Whirlwind - Anyone who clocks under 10 sec on the Speed Wall
