@@ -28,12 +28,19 @@ export interface Route {
   difficulty: string
   points: number
   displayOrder: number
+  checkpoint1Multiplier?: number
+  checkpoint2Multiplier?: number
 }
+
+export type WallDifficulty = "Novice" | "Beginner" | "Intermediate" | "Hard" | "Expert"
 
 export interface WallTop {
   id: number
   wallNumber: number
   points: number
+  difficulty?: WallDifficulty
+  checkpoint1Multiplier?: number
+  checkpoint2Multiplier?: number
 }
 
 export interface Bonus {
@@ -59,6 +66,8 @@ export interface Participant {
   costumeVotes?: number
 }
 
+export type CheckpointProgress = "checkpoint1" | "checkpoint2" | "topout"
+
 export interface ParticipantClimb {
   id: number
   participantId: number
@@ -67,6 +76,11 @@ export interface ParticipantClimb {
   wallTopId?: number
   pointsEarned: number
   completedAt: string
+  // Speed category fields
+  speedTime?: string // format: MM:SS:mmm
+  // Wall/Route checkpoint fields
+  checkpointReached?: CheckpointProgress
+  completionCount?: number // how many times completed in session
 }
 
 export interface ParticipantBonus {

@@ -32,14 +32,19 @@ CREATE TABLE IF NOT EXISTS routes (
   name VARCHAR(100) NOT NULL,
   difficulty VARCHAR(50),
   points INT DEFAULT 0,
-  display_order INT DEFAULT 0
+  display_order INT DEFAULT 0,
+  checkpoint1_multiplier DECIMAL(3,2) DEFAULT 0.2,
+  checkpoint2_multiplier DECIMAL(3,2) DEFAULT 0.6
 );
 
 -- Wall Tops (for Wall Tops category)
 CREATE TABLE IF NOT EXISTS wall_tops (
   id SERIAL PRIMARY KEY,
   wall_number INT NOT NULL,
-  points INT DEFAULT 0
+  points INT DEFAULT 0,
+  difficulty VARCHAR(50),
+  checkpoint1_multiplier DECIMAL(3,2) DEFAULT 0.2,
+  checkpoint2_multiplier DECIMAL(3,2) DEFAULT 0.6
 );
 
 -- Bonus Points
@@ -72,7 +77,10 @@ CREATE TABLE IF NOT EXISTS participant_climbs (
   route_id INT REFERENCES routes(id),
   wall_top_id INT REFERENCES wall_tops(id),
   points_earned INT DEFAULT 0,
-  completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  speed_time VARCHAR(20),
+  checkpoint_reached VARCHAR(20),
+  completion_count INT DEFAULT 1
 );
 
 -- Participant Bonuses

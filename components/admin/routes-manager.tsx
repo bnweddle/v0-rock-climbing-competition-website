@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Pencil, Trash2, Plus } from "lucide-react"
+import { getDifficultyColor, getRouteDifficultyCategory } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,8 @@ export function RoutesManager() {
     name: "",
     difficulty: "",
     points: "",
+    checkpoint1Multiplier: "0.2",
+    checkpoint2Multiplier: "0.6",
   })
 
   const handleAdd = (e: React.FormEvent) => {
@@ -45,6 +48,8 @@ export function RoutesManager() {
       difficulty: formData.difficulty,
       points: Number.parseInt(formData.points),
       displayOrder: routesList.length + 1,
+      checkpoint1Multiplier: Number.parseFloat(formData.checkpoint1Multiplier),
+      checkpoint2Multiplier: Number.parseFloat(formData.checkpoint2Multiplier),
     })
 
     toast({
@@ -52,7 +57,7 @@ export function RoutesManager() {
       description: `${formData.name} has been added`,
     })
 
-    setFormData({ name: "", difficulty: "", points: "" })
+    setFormData({ name: "", difficulty: "", points: "", checkpoint1Multiplier: "0.2", checkpoint2Multiplier: "0.6" })
     setIsAddOpen(false)
   }
 
@@ -63,6 +68,8 @@ export function RoutesManager() {
       name: formData.name,
       difficulty: formData.difficulty,
       points: Number.parseInt(formData.points),
+      checkpoint1Multiplier: Number.parseFloat(formData.checkpoint1Multiplier),
+      checkpoint2Multiplier: Number.parseFloat(formData.checkpoint2Multiplier),
     })
 
     toast({
@@ -71,7 +78,7 @@ export function RoutesManager() {
     })
 
     setEditingRoute(null)
-    setFormData({ name: "", difficulty: "", points: "" })
+    setFormData({ name: "", difficulty: "", points: "", checkpoint1Multiplier: "0.2", checkpoint2Multiplier: "0.6" })
   }
 
   const handleDelete = (routeId: number, routeName: string) => {
@@ -134,6 +141,36 @@ export function RoutesManager() {
                     required
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cp1-multiplier">Checkpoint 1 Multiplier</Label>
+                    <Input
+                      id="cp1-multiplier"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="1"
+                      placeholder="0.2"
+                      value={formData.checkpoint1Multiplier}
+                      onChange={(e) => setFormData({ ...formData, checkpoint1Multiplier: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="cp2-multiplier">Checkpoint 2 Multiplier</Label>
+                    <Input
+                      id="cp2-multiplier"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      max="1"
+                      placeholder="0.6"
+                      value={formData.checkpoint2Multiplier}
+                      onChange={(e) => setFormData({ ...formData, checkpoint2Multiplier: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
                 <Button type="submit" className="w-full">
                   Add Route
                 </Button>
@@ -153,9 +190,11 @@ export function RoutesManager() {
               <div className="flex-1">
                 <div className="flex items-center gap-2">
                   <h4 className="font-semibold text-foreground">{route.name}</h4>
-                  <Badge variant="outline">{route.difficulty}</Badge>
+                  <Badge className={getDifficultyColor(route.difficulty)}>{route.difficulty}</Badge>
                 </div>
-                <p className="text-sm text-muted-foreground mt-1">{route.points} points</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {route.points} points • CP1: {((route.checkpoint1Multiplier || 0.2) * 100).toFixed(0)}% • CP2: {((route.checkpoint2Multiplier || 0.6) * 100).toFixed(0)}%
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -168,10 +207,12 @@ export function RoutesManager() {
                         name: route.name,
                         difficulty: route.difficulty,
                         points: route.points.toString(),
+                        checkpoint1Multiplier: (route.checkpoint1Multiplier || 0.2).toString(),
+                        checkpoint2Multiplier: (route.checkpoint2Multiplier || 0.6).toString(),
                       })
                     } else {
                       setEditingRoute(null)
-                      setFormData({ name: "", difficulty: "", points: "" })
+                      setFormData({ name: "", difficulty: "", points: "", checkpoint1Multiplier: "0.2", checkpoint2Multiplier: "0.6" })
                     }
                   }}
                 >
@@ -213,6 +254,34 @@ export function RoutesManager() {
                           onChange={(e) => setFormData({ ...formData, points: e.target.value })}
                           required
                         />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-cp1-multiplier">Checkpoint 1 Multiplier</Label>
+                          <Input
+                            id="edit-cp1-multiplier"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="1"
+                            value={formData.checkpoint1Multiplier}
+                            onChange={(e) => setFormData({ ...formData, checkpoint1Multiplier: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-cp2-multiplier">Checkpoint 2 Multiplier</Label>
+                          <Input
+                            id="edit-cp2-multiplier"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="1"
+                            value={formData.checkpoint2Multiplier}
+                            onChange={(e) => setFormData({ ...formData, checkpoint2Multiplier: e.target.value })}
+                            required
+                          />
+                        </div>
                       </div>
                       <Button type="submit" className="w-full">
                         Update Route

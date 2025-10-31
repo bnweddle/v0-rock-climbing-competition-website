@@ -7,10 +7,13 @@ import { useCompetitionStore } from "@/lib/store"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import { CheckCircle2 } from "lucide-react"
+import { calculateCheckpointPoints, validateSpeedTime, getDifficultyColor } from "@/lib/utils"
+import type { CheckpointProgress } from "@/lib/types"
 
 export function ScoreEntry() {
   const { participants, categories, routes, wallTops, addClimb } = useCompetitionStore()
@@ -21,6 +24,9 @@ export function ScoreEntry() {
     categoryId: "",
     routeId: "",
     wallTopId: "",
+    speedTime: "",
+    checkpoint: "topout" as "checkpoint1" | "checkpoint2" | "topout",
+    completionCount: "1",
   })
 
   const selectedCategory = categories.find((c) => c.id === Number.parseInt(formData.categoryId))
@@ -38,14 +44,59 @@ export function ScoreEntry() {
       return
     }
 
+    // Validate Speed time if Speed category
+    if (selectedCategory?.name === "Speed") {
+      if (!formData.speedTime) {
+        toast({
+          title: "Missing Speed Time",
+          description: "Please enter the speed time",
+          variant: "destructive",
+        })
+        return
+      }
+      if (!validateSpeedTime(formData.speedTime)) {
+        toast({
+          title: "Invalid Time Format",
+          description: "Please use format MM:SS:mmm (e.g., 01:23:456)",
+          variant: "destructive",
+        })
+        return
+      }
+    }
+
     let pointsEarned = 0
+    let basePoints = 0
+    const completionCount = Number.parseInt(formData.completionCount) || 1
 
     if (formData.routeId) {
       const route = routes.find((r) => r.id === Number.parseInt(formData.routeId))
-      pointsEarned = route?.points || 0
+      if (route) {
+        basePoints = route.points
+        const checkpoint1Mult = route.checkpoint1Multiplier || 0.2
+        const checkpoint2Mult = route.checkpoint2Multiplier || 0.6
+        pointsEarned = calculateCheckpointPoints(
+          basePoints, 
+          formData.checkpoint as CheckpointProgress,
+          checkpoint1Mult,
+          checkpoint2Mult
+        ) * completionCount
+      }
     } else if (formData.wallTopId) {
       const wall = wallTops.find((w) => w.id === Number.parseInt(formData.wallTopId))
-      pointsEarned = wall?.points || 0
+      if (wall) {
+        basePoints = wall.points
+        const checkpoint1Mult = wall.checkpoint1Multiplier || 0.2
+        const checkpoint2Mult = wall.checkpoint2Multiplier || 0.6
+        pointsEarned = calculateCheckpointPoints(
+          basePoints,
+          formData.checkpoint as CheckpointProgress,
+          checkpoint1Mult,
+          checkpoint2Mult
+        ) * completionCount
+      }
+    } else if (selectedCategory?.name === "Speed") {
+      // For speed, we could award points based on time, but for now just a flat rate
+      pointsEarned = 50 // Base points for speed
     }
 
     addClimb({
@@ -54,6 +105,9 @@ export function ScoreEntry() {
       routeId: formData.routeId ? Number.parseInt(formData.routeId) : undefined,
       wallTopId: formData.wallTopId ? Number.parseInt(formData.wallTopId) : undefined,
       pointsEarned,
+      speedTime: formData.speedTime || undefined,
+      checkpointReached: (formData.routeId || formData.wallTopId) ? formData.checkpoint as CheckpointProgress : undefined,
+      completionCount: (formData.routeId || formData.wallTopId) ? completionCount : undefined,
     })
 
     const participant = participants.find((p) => p.id === Number.parseInt(formData.participantId))
@@ -65,9 +119,12 @@ export function ScoreEntry() {
 
     setFormData({
       participantId: formData.participantId,
-      categoryId: "",
+      categoryId: formData.categoryId,
       routeId: "",
       wallTopId: "",
+      speedTime: "",
+      checkpoint: "topout",
+      completionCount: "1",
     })
   }
 
@@ -127,44 +184,142 @@ export function ScoreEntry() {
               </div>
 
               {selectedCategory?.name === "Routes" && (
-                <div className="space-y-2">
-                  <Label htmlFor="route">Route</Label>
-                  <Select
-                    value={formData.routeId}
-                    onValueChange={(value) => setFormData({ ...formData, routeId: value })}
-                  >
-                    <SelectTrigger id="route">
-                      <SelectValue placeholder="Select route" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableRoutes.map((r) => (
-                        <SelectItem key={r.id} value={r.id.toString()}>
-                          {r.name} - {r.difficulty} ({r.points} pts)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="route">Route</Label>
+                    <Select
+                      value={formData.routeId}
+                      onValueChange={(value) => setFormData({ ...formData, routeId: value })}
+                    >
+                      <SelectTrigger id="route">
+                        <SelectValue placeholder="Select route" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableRoutes.map((r) => (
+                          <SelectItem key={r.id} value={r.id.toString()}>
+                            <div className="flex items-center gap-2">
+                              {r.name} - {r.difficulty} ({r.points} pts)
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {formData.routeId && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="checkpoint">Progress</Label>
+                        <Select
+                          value={formData.checkpoint}
+                          onValueChange={(value) => setFormData({ ...formData, checkpoint: value as "checkpoint1" | "checkpoint2" | "topout" })}
+                        >
+                          <SelectTrigger id="checkpoint">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="checkpoint1">Checkpoint 1 (20%)</SelectItem>
+                            <SelectItem value="checkpoint2">Checkpoint 2 (60%)</SelectItem>
+                            <SelectItem value="topout">Top Out (100%)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="completionCount">Number of Completions</Label>
+                        <Input
+                          id="completionCount"
+                          type="number"
+                          min="1"
+                          value={formData.completionCount}
+                          onChange={(e) => setFormData({ ...formData, completionCount: e.target.value })}
+                          placeholder="1"
+                        />
+                        <p className="text-xs text-muted-foreground">How many times completed in this session</p>
+                      </div>
+                    </>
+                  )}
+                </>
               )}
 
               {selectedCategory?.name === "Wall Tops" && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="wall">Wall</Label>
+                    <Select
+                      value={formData.wallTopId}
+                      onValueChange={(value) => setFormData({ ...formData, wallTopId: value })}
+                    >
+                      <SelectTrigger id="wall">
+                        <SelectValue placeholder="Select wall" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {wallTops.map((w) => (
+                          <SelectItem key={w.id} value={w.id.toString()}>
+                            <div className="flex items-center gap-2">
+                              Wall {w.wallNumber} ({w.points} pts)
+                              {w.difficulty && (
+                                <Badge className={getDifficultyColor(w.difficulty)} style={{ fontSize: '0.7rem', padding: '0 4px' }}>
+                                  {w.difficulty}
+                                </Badge>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {formData.wallTopId && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="checkpoint">Progress</Label>
+                        <Select
+                          value={formData.checkpoint}
+                          onValueChange={(value) => setFormData({ ...formData, checkpoint: value as "checkpoint1" | "checkpoint2" | "topout" })}
+                        >
+                          <SelectTrigger id="checkpoint">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="checkpoint1">Checkpoint 1 (20%)</SelectItem>
+                            <SelectItem value="checkpoint2">Checkpoint 2 (60%)</SelectItem>
+                            <SelectItem value="topout">Top Out (100%)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="completionCount">Number of Completions</Label>
+                        <Input
+                          id="completionCount"
+                          type="number"
+                          min="1"
+                          value={formData.completionCount}
+                          onChange={(e) => setFormData({ ...formData, completionCount: e.target.value })}
+                          placeholder="1"
+                        />
+                        <p className="text-xs text-muted-foreground">How many times completed in this session</p>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+
+              {selectedCategory?.name === "Speed" && (
                 <div className="space-y-2">
-                  <Label htmlFor="wall">Wall</Label>
-                  <Select
-                    value={formData.wallTopId}
-                    onValueChange={(value) => setFormData({ ...formData, wallTopId: value })}
-                  >
-                    <SelectTrigger id="wall">
-                      <SelectValue placeholder="Select wall" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {wallTops.map((w) => (
-                        <SelectItem key={w.id} value={w.id.toString()}>
-                          Wall {w.wallNumber} ({w.points} pts)
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Label htmlFor="speedTime">Time (MM:SS:mmm)</Label>
+                  <Input
+                    id="speedTime"
+                    type="text"
+                    value={formData.speedTime}
+                    onChange={(e) => setFormData({ ...formData, speedTime: e.target.value })}
+                    placeholder="01:23:456"
+                    pattern="\d{1,2}:[0-5]\d:\d{3}"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Format: Minutes:Seconds:Milliseconds (e.g., 01:23:456)
+                  </p>
                 </div>
               )}
 

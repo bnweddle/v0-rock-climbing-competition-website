@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Star, Trophy, Medal, Award } from "lucide-react"
+import { Star, Trophy, Medal, Award, Clock, CheckCircle } from "lucide-react"
+import { getDifficultyColor } from "@/lib/utils"
 import {
   Dialog,
   DialogContent,
@@ -225,31 +226,69 @@ export function LeaderboardFull() {
                                   {climbs.map((climb) => {
                                     const route = routes.find((r) => r.id === climb.routeId)
                                     const wall = wallTops.find((w) => w.id === climb.wallTopId)
+                                    const category = climb.categoryId === 3 ? "Speed" : null
 
                                     return (
                                       <div
                                         key={climb.id}
                                         className="flex items-center justify-between rounded-lg border border-border p-3"
                                       >
-                                        <div>
+                                        <div className="flex-1">
                                           {route && (
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 flex-wrap">
                                               <span className="text-sm font-medium text-foreground">{route.name}</span>
-                                              <Badge variant="outline" className="text-xs">
+                                              <Badge className={`${getDifficultyColor(route.difficulty)} text-xs`}>
                                                 {route.difficulty}
                                               </Badge>
+                                              {climb.checkpointReached && (
+                                                <Badge variant="outline" className="text-xs">
+                                                  {climb.checkpointReached === "checkpoint1" && "CP1"}
+                                                  {climb.checkpointReached === "checkpoint2" && "CP2"}
+                                                  {climb.checkpointReached === "topout" && "Top Out"}
+                                                </Badge>
+                                              )}
+                                              {climb.completionCount && climb.completionCount > 1 && (
+                                                <Badge variant="secondary" className="text-xs">
+                                                  ×{climb.completionCount}
+                                                </Badge>
+                                              )}
                                             </div>
                                           )}
                                           {wall && (
-                                            <span className="text-sm font-medium text-foreground">
-                                              Wall {wall.wallNumber}
-                                            </span>
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                              <span className="text-sm font-medium text-foreground">
+                                                Wall {wall.wallNumber}
+                                              </span>
+                                              {wall.difficulty && (
+                                                <Badge className={`${getDifficultyColor(wall.difficulty)} text-xs`}>
+                                                  {wall.difficulty}
+                                                </Badge>
+                                              )}
+                                              {climb.checkpointReached && (
+                                                <Badge variant="outline" className="text-xs">
+                                                  {climb.checkpointReached === "checkpoint1" && "CP1"}
+                                                  {climb.checkpointReached === "checkpoint2" && "CP2"}
+                                                  {climb.checkpointReached === "topout" && "Top Out"}
+                                                </Badge>
+                                              )}
+                                              {climb.completionCount && climb.completionCount > 1 && (
+                                                <Badge variant="secondary" className="text-xs">
+                                                  ×{climb.completionCount}
+                                                </Badge>
+                                              )}
+                                            </div>
+                                          )}
+                                          {category === "Speed" && climb.speedTime && (
+                                            <div className="flex items-center gap-2">
+                                              <Clock className="h-4 w-4 text-muted-foreground" />
+                                              <span className="text-sm font-medium text-foreground">{climb.speedTime}</span>
+                                            </div>
                                           )}
                                           <p className="text-xs text-muted-foreground mt-1">
                                             {new Date(climb.completedAt).toLocaleDateString()}
                                           </p>
                                         </div>
-                                        <Badge variant="secondary">{climb.pointsEarned} pts</Badge>
+                                        <Badge variant="secondary" className="ml-2">{climb.pointsEarned} pts</Badge>
                                       </div>
                                     )
                                   })}

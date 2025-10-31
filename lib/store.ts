@@ -40,7 +40,7 @@ interface CompetitionStore {
   updateRoute: (id: number, route: Partial<Route>) => void
   deleteRoute: (id: number) => void
 
-  updateWallTop: (wallNumber: number, points: number) => void
+  updateWallTop: (wallNumber: number, updates: Partial<Omit<WallTop, "id" | "wallNumber">>) => void
 
   addBonus: (bonus: Omit<Bonus, "id">) => void
   updateBonus: (id: number, bonus: Partial<Bonus>) => void
@@ -79,17 +79,19 @@ export const useCompetitionStore = create<CompetitionStore>()(
         { id: 3, name: "Speed", description: "Speed climbing challenges", displayOrder: 3 },
       ],
       routes: [
-        { id: 1, categoryId: 2, name: "Route 1", difficulty: "5.6", points: 50, displayOrder: 1 },
-        { id: 2, categoryId: 2, name: "Route 2", difficulty: "5.7", points: 75, displayOrder: 2 },
-        { id: 3, categoryId: 2, name: "Route 3", difficulty: "5.8", points: 100, displayOrder: 3 },
-        { id: 4, categoryId: 2, name: "Route 4", difficulty: "5.9", points: 125, displayOrder: 4 },
-        { id: 5, categoryId: 2, name: "Route 5", difficulty: "5.10a", points: 150, displayOrder: 5 },
-        { id: 6, categoryId: 2, name: "Route 6", difficulty: "5.11c", points: 200, displayOrder: 6 },
+        { id: 1, categoryId: 2, name: "Route 1", difficulty: "5.6", points: 50, displayOrder: 1, checkpoint1Multiplier: 0.2, checkpoint2Multiplier: 0.6 },
+        { id: 2, categoryId: 2, name: "Route 2", difficulty: "5.7", points: 75, displayOrder: 2, checkpoint1Multiplier: 0.2, checkpoint2Multiplier: 0.6 },
+        { id: 3, categoryId: 2, name: "Route 3", difficulty: "5.8", points: 100, displayOrder: 3, checkpoint1Multiplier: 0.2, checkpoint2Multiplier: 0.6 },
+        { id: 4, categoryId: 2, name: "Route 4", difficulty: "5.9", points: 125, displayOrder: 4, checkpoint1Multiplier: 0.2, checkpoint2Multiplier: 0.6 },
+        { id: 5, categoryId: 2, name: "Route 5", difficulty: "5.10a", points: 150, displayOrder: 5, checkpoint1Multiplier: 0.2, checkpoint2Multiplier: 0.6 },
+        { id: 6, categoryId: 2, name: "Route 6", difficulty: "5.11c", points: 200, displayOrder: 6, checkpoint1Multiplier: 0.2, checkpoint2Multiplier: 0.6 },
       ],
       wallTops: Array.from({ length: 9 }, (_, i) => ({
         id: i + 1,
         wallNumber: i + 1,
         points: 25,
+        checkpoint1Multiplier: 0.2,
+        checkpoint2Multiplier: 0.6,
       })),
       bonuses: [
         {
@@ -150,9 +152,9 @@ export const useCompetitionStore = create<CompetitionStore>()(
           routes: state.routes.filter((r) => r.id !== id),
         })),
 
-      updateWallTop: (wallNumber, points) =>
+      updateWallTop: (wallNumber, updates) =>
         set((state) => ({
-          wallTops: state.wallTops.map((w) => (w.wallNumber === wallNumber ? { ...w, points } : w)),
+          wallTops: state.wallTops.map((w) => (w.wallNumber === wallNumber ? { ...w, ...updates } : w)),
         })),
 
       addBonus: (bonus) =>
