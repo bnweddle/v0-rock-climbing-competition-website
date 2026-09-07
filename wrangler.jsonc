@@ -1,0 +1,12 @@
+{
+  // Must match the existing Worker in your Cloudflare account so deploys
+  // update it in place rather than creating a second Worker.
+  "name": "rock-climbing-competition",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    // `next build` with `output: "export"` writes the static site here.
+    "directory": "./out",
+    // Next emits out/404.html; serve it for unmatched paths.
+    "not_found_handling": "404-page"
+  }
+}
