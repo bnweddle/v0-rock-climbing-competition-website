@@ -27,7 +27,7 @@ const challengeGroups = [
 const general = ["Bring someone climbing who has never been", "Submit a picture in a Halloween costume", "Climb the secret routes or walls with a secret route", "Traverse the entire wall while keeping your feet below the black line", "Climb at NW at least once during October"]
 
 function ChallengeList({ title, items }: { title: string; items: string[] }) {
-  return <div className="flex flex-col gap-3"><h4 className="text-sm font-bold uppercase tracking-widest text-primary">{title}</h4><ul className="grid gap-2 sm:grid-cols-2">{items.map((item) => <li key={item} className="flex gap-3 rounded-xl border border-border/70 bg-background/60 px-4 py-3 text-sm leading-relaxed"><span className="mt-2 size-1.5 shrink-0 rounded-full bg-primary" />{item}</li>)}</ul></div>
+  return <div className="flex flex-col gap-3"><h4 className="text-sm font-bold uppercase tracking-widest text-primary">{title}</h4><ul className="grid list-none gap-2 sm:grid-cols-2">{items.map((item) => <li key={item} className="flex gap-3 rounded-xl border border-border/70 bg-background/60 px-4 py-3 text-sm leading-relaxed"><Mountain aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />{item}</li>)}</ul></div>
 }
 
 export function RocktoberPage() {
