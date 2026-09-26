@@ -16,8 +16,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "The Rocktober Challenge",
-  description: "Rock climbing competition for October",
+  title: "Rocktober Challenge | North YMCA",
+  description: "Rules, FAQs, and climbing challenges for the North YMCA Rocktober Challenge.",
   generator: "v0.app",
 }
 
