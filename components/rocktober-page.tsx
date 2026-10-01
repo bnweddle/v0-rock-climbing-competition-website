@@ -16,8 +16,9 @@ const faqSections = [
 ]
 
 type Challenge = string | { points: number; text: string; prize?: boolean }
+type ChallengeGroup = { tier: string; subtitle: string; items: Challenge[]; routes?: Challenge[] }
 
-const challengeGroups = [
+const challengeGroups: ChallengeGroup[] = [
   { tier: "4–6 years", subtitle: "Wall Climbs", items: [
     { points: 30, text: "Climb to checkpoint 1 on Walls #9 and #1" },
     { points: 35, text: "Climb to checkpoint 2 on Walls #9 and #1" },
@@ -55,7 +56,27 @@ function challengeText(item: Challenge) {
 }
 
 function ChallengeList({ title, items }: { title: string; items: Challenge[] }) {
-  return <div className="flex flex-col gap-3"><h4 className="text-sm font-bold uppercase tracking-widest text-primary">{title}</h4><ul className="grid list-none gap-2 sm:grid-cols-2">{items.map((item) => { const challenge = typeof item === "string" ? { text: item } : item; return <li key={challengeText(item)} className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/60 px-4 py-3 text-sm leading-relaxed"><Mountain aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" /><span className="flex-1">{challenge.text}</span>{"points" in challenge && <span className="shrink-0 font-bold text-secondary">{challenge.points} pts</span>}{challenge.prize && <span title="This challenge includes a prize." aria-label="Prize challenge">★</span>}</li> })}</ul></div>
+  return (
+    <div className="flex flex-col gap-3">
+      <h4 className="text-sm font-bold uppercase tracking-widest text-primary">{title}</h4>
+      <ul className="grid list-none gap-2 sm:grid-cols-2">
+        {items.map((item) => {
+          const challenge = typeof item === "string" ? { text: item } : item
+          const hasPrize = "prize" in challenge && challenge.prize
+          const points = "points" in challenge ? challenge.points : null
+
+          return (
+            <li key={challengeText(item)} className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/60 px-4 py-3 text-sm leading-relaxed">
+              <Mountain aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />
+              <span className="min-w-0 flex-1">{challenge.text}</span>
+              {hasPrize && <span className="shrink-0 text-lg leading-none text-yellow-400" title="This challenge includes a prize." aria-label="Prize challenge">★</span>}
+              {points !== null && <span className="flex min-w-16 shrink-0 justify-center rounded-full bg-secondary/15 px-2 py-1 text-xs font-bold text-secondary">{points} pts</span>}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
+  )
 }
 
 export function RocktoberPage() {
