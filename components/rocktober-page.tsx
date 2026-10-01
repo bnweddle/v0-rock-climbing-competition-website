@@ -15,8 +15,24 @@ const faqSections = [
   { title: "Can I join late or complete all my challenges?", body: "Yes. Anyone can join after October 1 and still earn points and prizes. If you complete every challenge in your tier, keep logging tops and checkpoints; more challenges may be added during the month." },
 ]
 
+type Challenge = string | { points: number; text: string; prize?: boolean }
+
 const challengeGroups = [
-  { tier: "4–6 years", subtitle: "Wall Climbs", items: ["Checkpoint 1 on walls #9 and #1", "Checkpoint 1 on walls #6 and #7", "Checkpoint 2 on walls #9 and #1", "Top #9 in under 3 minutes", "Top #9 without purple holds", "Top #8 without blue holds", "Top #7 without unicorn holds", "Top #6 without purple holds", "Top #5 without yellow holds", "Top #4 without black holds", "Top #3 without orange holds", "Top #2 without pink holds", "Top #1 without purple holds"] },
+  { tier: "4–6 years", subtitle: "Wall Climbs", items: [
+    { points: 30, text: "Climb to checkpoint 1 on Walls #9 and #1" },
+    { points: 35, text: "Climb to checkpoint 2 on Walls #9 and #1" },
+    { points: 35, text: "Climb to checkpoint 1 on Walls #6 and #7", prize: true },
+    { points: 40, text: "Climb to the top of #9 without using purple holds" },
+    { points: 45, text: "Climb to the top of #9 in under 3 minutes", prize: true },
+    { points: 45, text: "Climb to the top of #7 without using unicorn holds", prize: true },
+    { points: 50, text: "Climb to the top of #1 without using purple holds", prize: true },
+    { points: 55, text: "Climb to the top of #2 without using pink holds" },
+    { points: 60, text: "Climb to the top of #6 without using purple holds" },
+    { points: 65, text: "Climb to the top of #5 without using yellow holds" },
+    { points: 70, text: "Climb to the top of #4 without using black holds", prize: true },
+    { points: 75, text: "Climb to the top of #3 without using orange holds" },
+    { points: 80, text: "Climb to the top of #8 without using blue holds around the corners" },
+  ] },
   { tier: "7–9 years", subtitle: "Wall Climbs", items: ["Top walls #9 and #1", "Checkpoint 2 on walls #6 and #7", "Checkpoint 1 on walls #2 and #8", "Top #9 in under 2 minutes", "Top #1 in under 2 minutes", "Top #9 without purple holds", "Top all the Walls", "Climb to the top of #8 without using blue holds", "Climb to the top of #7 without using unicorn holds", "Climb to the top of #6 without using purple holds", "Climb to the top of #5 without using yellow holds", "Climb to the top of #4 without using black holds", "Climb to the top of #3 without using oranges holds", "Climb to the top of #2 without using pink holds", "Climb to the top of #1 without using purple holds"] },
   { tier: "10–12 years", subtitle: "Wall Climbs", items: ["Top #9 in under 1 minute", "Top #9 without green holds", "Top #1 without purple holds", "Top both autobelays", "Checkpoint 2 on walls #2 and #8", "Checkpoint 1 on walls #3, #4, and #5", "Top all the walls", "Climb to the top of Wall #8 without using white holds", "Climb to the top of Wall #7 without using gray holds", "Climb to the top of Wall #6 without using purple holds", "Climb to the top of Wall #5 without using yellow holds", "Climb to the top of Wall #4 without using black holds", "Climb to the top of Wall #3 without using oranges holds", "Climb to the top of Wall #2 without using pink holds"] },
   { tier: "13–18 years", subtitle: "Wall Climbs", items: ["Climb up and down an autobelay without falling", "Top #9 in under 30 seconds", "Top walls #9, #1, and #2", "Top both autobelays (#6 and #7)", "Top wall #7 without unicorn holds", "Top wall #6 without gray holds", "Checkpoint 2 on walls #3, #4, and #5", "Climb #9 using only blue and gray holds", "Climb #1 using only gray/brown and orange", "Top all the walls"] },
@@ -31,17 +47,21 @@ const general = ["Bring someone climbing who has never climbed at the North Y", 
 const secretReminder = "Keep checking this website for additional challenges and upcoming secret route challenges."
 
 function SecretRouteReminder() {
-  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 rounded-xl px-3 py-1.5 text-sm leading-7 text-muted-foreground">{secretReminder}</p></aside>
+  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 rounded-xl px-3 py-1.5 text-sm leading-7 text-muted-foreground">{secretReminder}</p><p className="mt-4 px-3 text-xs text-muted-foreground">A star indicates that a prize will be received when that challenge is completed. Hover over a star for a reminder.</p></aside>
 }
 
-function ChallengeList({ title, items }: { title: string; items: string[] }) {
-  return <div className="flex flex-col gap-3"><h4 className="text-sm font-bold uppercase tracking-widest text-primary">{title}</h4><ul className="grid list-none gap-2 sm:grid-cols-2">{items.map((item) => <li key={item} className="flex gap-3 rounded-xl border border-border/70 bg-background/60 px-4 py-3 text-sm leading-relaxed"><Mountain aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" />{item}</li>)}</ul></div>
+function challengeText(item: Challenge) {
+  return typeof item === "string" ? item : item.text
+}
+
+function ChallengeList({ title, items }: { title: string; items: Challenge[] }) {
+  return <div className="flex flex-col gap-3"><h4 className="text-sm font-bold uppercase tracking-widest text-primary">{title}</h4><ul className="grid list-none gap-2 sm:grid-cols-2">{items.map((item) => { const challenge = typeof item === "string" ? { text: item } : item; return <li key={challengeText(item)} className="flex items-start gap-3 rounded-xl border border-border/70 bg-background/60 px-4 py-3 text-sm leading-relaxed"><Mountain aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-primary" /><span className="flex-1">{challenge.text}</span>{"points" in challenge && <span className="shrink-0 font-bold text-secondary">{challenge.points} pts</span>}{challenge.prize && <span title="This challenge includes a prize." aria-label="Prize challenge">★</span>}</li> })}</ul></div>
 }
 
 export function RocktoberPage() {
   const [activeTier, setActiveTier] = useState("All tiers")
   const [query, setQuery] = useState("")
-  const filtered = useMemo(() => challengeGroups.filter((group) => activeTier === "All tiers" || group.tier === activeTier).map((group) => ({ ...group, items: group.items.filter((item) => item.toLowerCase().includes(query.toLowerCase())), routes: group.routes?.filter((item) => item.toLowerCase().includes(query.toLowerCase())) })), [activeTier, query])
+  const filtered = useMemo(() => challengeGroups.filter((group) => activeTier === "All tiers" || group.tier === activeTier).map((group) => ({ ...group, items: group.items.filter((item) => challengeText(item).toLowerCase().includes(query.toLowerCase())), routes: group.routes?.filter((item) => challengeText(item).toLowerCase().includes(query.toLowerCase())) })), [activeTier, query])
   return <div className="min-h-screen bg-background">
     <header className="sticky top-0 z-10 border-b border-border/70 bg-background/90 backdrop-blur"><div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4"><a href="#top" className="flex items-center gap-3 font-display text-xl tracking-wide"><span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground"><Mountain /></span><span>ROCKTOBER <span className="text-primary">CHALLENGE</span></span></a><nav className="hidden gap-6 text-sm font-medium sm:flex"><a href="#rules" className="hover:text-primary">Rules & FAQ</a><a href="#challenges" className="hover:text-primary">Challenges</a></nav></div></header>
     <main id="top"><section className="relative overflow-hidden border-b border-border/70"><div className="mx-auto grid max-w-6xl gap-10 px-5 py-20 md:grid-cols-[1.1fr_.9fr] md:items-center md:py-28"><div><p className="mb-4 text-sm font-bold uppercase tracking-[0.28em] text-primary">October · North YMCA</p><h1 className="max-w-3xl font-display text-5xl tracking-wide sm:text-7xl">ROCKTOBER <span className="text-primary">CHALLENGE</span></h1><p className="mt-6 max-w-xl text-lg leading-8 text-muted-foreground">Climb more. <span className="font-semibold text-foreground">Challenge yourself.</span> A completely free month-long climbing challenge for every age and ability. Pick your tier, try new climbs, and earn points all October long.</p><div className="mt-8 flex flex-wrap gap-3"><a href="#challenges" className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-primary-foreground">Explore challenges <ArrowRight /></a><a href="#rules" className="rounded-xl border border-border px-5 py-3 font-semibold">Read the rules</a></div></div><div className="rounded-[2rem] bg-primary p-8 text-primary-foreground shadow-2xl shadow-primary/20"><p className="text-sm font-semibold uppercase tracking-widest opacity-80">How it works</p><ol className="mt-7 flex flex-col gap-6">{["Choose the tier that fits you", "Climb walls, routes, and checkpoints", "Log your progress with the wall QR codes"].map((step, i) => <li key={step} className="flex gap-4"><span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary-foreground font-bold text-primary">{i + 1}</span><span className="pt-1 font-medium">{step}</span></li>)}</ol></div></div></section>
