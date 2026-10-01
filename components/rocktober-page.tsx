@@ -31,7 +31,7 @@ const general = ["Bring someone climbing who has never climbed at the North Y", 
 const secretReminder = "Keep checking this website for additional challenges and upcoming secret route challenges."
 
 function SecretRouteReminder() {
-  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 text-sm leading-7 text-muted-foreground">{secretReminder}</p></aside>
+  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 text-sm leading-7 text-muted-foreground">{secretReminder}</p></aside>
 }
 
 function ChallengeList({ title, items }: { title: string; items: string[] }) {
