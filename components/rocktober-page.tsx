@@ -172,7 +172,12 @@ const challengeGroups: ChallengeGroup[] = [
   ] },
 ]
 
-const general = ["Bring someone climbing who has never climbed at the North Y", "Submit a picture in a Halloween costume", "Traverse the entire wall while keeping your feet below the black line", "Climb at NW at least once during October"]
+const general: Challenge[] = [
+  { points: 150, text: "Bring someone climbing who has never climbed at the North Y" },
+  { points: 50, text: "Submit a picture in a Halloween costume" },
+  { points: 100, text: "Traverse the entire wall while keeping your feet below the black line" },
+  { points: 100, text: "Climb at NW at least once during October" },
+]
 
 const secretReminder = "Keep checking this website for additional challenges and upcoming secret route challenges."
 
