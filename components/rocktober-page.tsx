@@ -189,7 +189,7 @@ const general: Challenge[] = [
 const secretReminder = "Keep checking this website for additional challenges and upcoming secret route challenges."
 
 function SecretRouteReminder() {
-  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 rounded-xl px-3 py-1.5 text-sm leading-7 text-muted-foreground">{secretReminder}</p><p className="mt-4 px-3 text-xs text-muted-foreground">A star indicates that a prize will be received when that challenge is completed. Hover over a star for a reminder.</p></aside>
+  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 rounded-xl px-3 py-1.5 text-sm leading-7 text-muted-foreground">{secretReminder}</p><p className="mt-4 px-3 text-xs text-muted-foreground">A star indicates that a prize will be received when that challenge is completed.</p></aside>
 }
 
 function challengeText(item: Challenge) {
