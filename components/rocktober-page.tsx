@@ -109,6 +109,8 @@ const challengeGroups: ChallengeGroup[] = [
     { points: 20, text: "Climb Night Fury (black on #4) to checkpoint 1", prize: true },
     { points: 175, text: "Climb all routes on the wall 6 to the top" },
     { points: 200, text: "Climb all routes on the wall 7 to the top" },
+    { points: 40, text: "Climb a 5.9 of your choice in tennis shoes" },
+    { points: 40, text: "Climb a 5.9 of your choice without using any chalk" },
     { points: 30, text: "Climb Smurf and Turf (blue on #9) under 1 minute", prize: true },
     { points: 45, text: "Climb Aquaman (teal on #4) in under 2 minutes" },
     { points: 75, text: "Climb Trick or Yeet (yellow on #8) in under 30 seconds" },
