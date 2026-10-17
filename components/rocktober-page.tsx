@@ -190,12 +190,15 @@ const general: Challenge[] = [
   { points: 50, text: "Submit a picture in a Halloween costume" },
   { points: 100, text: "Traverse the entire wall while keeping your feet below the black line" },
   { points: 100, text: "Climb at NW at least once during October" },
+  { points: 50, text: "Climb the hidden secret route on wall #9" },
+  { points: 60, text: "Climb the hidden secret route on wall #8" },
 ]
 
-const secretReminder = "Keep checking this website for additional challenges and upcoming secret route challenges."
+const secretReminder =
+  "NEW secret routes are now available to climb. You will need to use a UV flashlight, located in the labelled box in the cabinet drawer. All holds are marked with an X and can only be seen with a UV light. Strategies are open to how you want to locate and then climb the secret route."
 
 function SecretRouteReminder() {
-  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">Important reminder</p><p className="mt-2 rounded-xl px-3 py-1.5 text-sm leading-7 text-muted-foreground">{secretReminder}</p><p className="mt-4 px-3 text-xs text-muted-foreground">A star indicates that a prize will be received when that challenge is completed.</p></aside>
+  return <aside className="mb-6 rounded-2xl border-2 border-dashed border-primary/50 bg-primary/10 p-5"><p className="inline-flex rounded-full bg-primary/15 px-3 py-1.5 text-sm font-bold uppercase tracking-widest text-primary">New updates</p><p className="mt-2 rounded-xl px-3 py-1.5 text-sm leading-7 text-muted-foreground">{secretReminder}</p><p className="mt-4 px-3 text-xs text-muted-foreground">A star indicates that a prize will be received when that challenge is completed.</p></aside>
 }
 
 function challengeText(item: Challenge) {
